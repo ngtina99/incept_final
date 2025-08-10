@@ -1,0 +1,175 @@
+services:
+    # Service for NGINX - the reverse proxy that serves the WordPress site via HTTPS
+  nginx:
+
+    # Directory used as build context: sent to Docker daemon during image build.
+    # It must include the Dockerfile and all required files.
+    build:
+      context: ./requirements/nginx
+      
+    # Assigns a fixed name to the container for easy reference.
+    container_name: nginx
+
+    # Ensures this container is started only after WordPress container has started.
+    depends_on:
+      - wordpress
+
+    # Maps host port 443 (HTTPS) to container port 443.
+    # Ensures the site is only available via HTTPS (not HTTP).
+    ports:
+      - "443:443"
+
+    # Mounts the 'wordpress_data' volume to /var/www/html inside the container.
+    # This is where NGINX will serve WordPress static and dynamic content.
+    # Also mounts the PHP-FPM socket for communication with WordPress.
+    volumes:
+      - wordpress_data:/var/www/html
+      - /run/php:/run/php
+
+    # Connects this container to a custom user-defined bridge network named 'inception'.
+    # This allows communication with other containers like WordPress and MariaDB.
+    networks:
+      - inception
+
+    # Loads environment variables from a .env file (which must not be committed to git).
+    env_file:
+      - .env
+
+    # Automatically restarts the container if it crashes or the system reboots.
+    restart: always
+
+
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+    container_name: mariadb
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - inception
+    secrets:
+      - mysql_root_password
+      - mysql_user_password
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: ../secrets/mysql_root_password
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD_FILE: ../secrets/mysql_user_password
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    restart: always
+
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+    container_name: wordpress
+    depends_on:
+      - mariadb
+    volumes:
+      - wordpress_data:/var/www/html
+      - /run/php:/run/php
+    networks:
+      - inception
+    secrets:
+      - mysql_user_password
+      - wp_admin_password
+      - wp_user_password
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      MYSQL_HOST: mariadb
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      WP_TITLE: ${WP_TITLE}
+      WP_ADMIN: ${WP_ADMIN}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
+      WP_USER: ${WP_USER}
+      WP_USER_EMAIL: ${WP_USER_EMAIL}
+    restart: always
+
+  static_site:
+    build:
+      context: ./requirements/static_site
+    container_name: static_site
+    ports:
+      - "8080:80"
+    networks:
+      - inception
+    restart: always
+
+  ftp:
+    build:
+      context: ./requirements/ftp
+    container_name: ftp
+    secrets:
+      - ftp_password
+    networks:
+      - inception
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    volumes:
+      - wordpress_data:/home/ftpuser
+    restart: always
+
+  redis:
+    build:
+      context: ./requirements/redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - inception
+    restart: always
+
+  adminer:
+    build:
+      context: ./requirements/adminer
+    container_name: adminer
+    ports:
+      - "8081:8081"
+    networks:
+      - inception
+    restart: always
+
+  cadvisor:
+    build: ./requirements/cadvisor
+    container_name: cadvisor
+    restart: always
+    ports:
+      - "8087:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - inception
+
+
+volumes:
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${MARIADB_VOLUME_PATH}
+      o: bind
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${WORDPRESS_VOLUME_PATH}
+      o: bind
+
+secrets:
+  mysql_root_password:
+    file: ../secrets/mysql_root_password
+  mysql_user_password:
+    file: ../secrets/mysql_user_password
+  wp_admin_password:
+    file: ../secrets/wp_admin_password
+  wp_user_password:
+    file: ../secrets/wp_user_password
+  ftp_password:
+    file: ../secrets/ftp_password
+
+networks:
+  inception:
+    driver: bridge
