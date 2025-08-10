@@ -84,65 +84,15 @@ services:
       WP_USER_EMAIL: ${WP_USER_EMAIL}
     restart: always
 
-  static_site:
+  mywebsite:
     build:
-      context: ./requirements/static_site
-    container_name: static_site
+      context: ./requirements/mywebsite
+    container_name: mywebsite
     ports:
       - "8080:80"
     networks:
       - inception
     restart: always
-
-  ftp:
-    build:
-      context: ./requirements/ftp
-    container_name: ftp
-    secrets:
-      - ftp_password
-    networks:
-      - inception
-    ports:
-      - "21:21"
-      - "21100-21110:21100-21110"
-    volumes:
-      - wordpress_data:/home/ftpuser
-    restart: always
-
-  redis:
-    build:
-      context: ./requirements/redis
-    container_name: redis
-    ports:
-      - "6379:6379"
-    networks:
-      - inception
-    restart: always
-
-  adminer:
-    build:
-      context: ./requirements/adminer
-    container_name: adminer
-    ports:
-      - "8081:8081"
-    networks:
-      - inception
-    restart: always
-
-  cadvisor:
-    build: ./requirements/cadvisor
-    container_name: cadvisor
-    restart: always
-    ports:
-      - "8087:8080"
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-    networks:
-      - inception
-
 
 volumes:
   mariadb_data:
