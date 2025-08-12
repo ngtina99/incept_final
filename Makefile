@@ -2,7 +2,7 @@ NAME=inception
 COMPOSE=docker compose
 YML=srcs/docker-compose.yml
 
-PC_USER := thu-ngu
+PC_USER := thuy-ngu
 MARIADB_VOLUME_PATH := /home/$(PC_USER)/data/mariadb
 WORDPRESS_VOLUME_PATH := /home/$(PC_USER)/data/wordpress
 
