@@ -4,7 +4,7 @@ set -e
 echo "[1/4] Waiting for MariaDB to be ready..."
 
 # Wait until MySQL responds
-while ! mysqladmin ping -h"$MYSQL_HOST" --silent; do
+while ! mysqladmin ping -h"$HOST" --silent; do
   sleep 1
 done
 
@@ -22,10 +22,10 @@ echo "[3/4] Creating wp-config.php..."
 # Create wp-config.php only if it doesn't exist
 if [ ! -f "wp-config.php" ]; then
   wp config create \
-    --dbname="$MYSQL_DATABASE" \
-    --dbuser="$MYSQL_USER" \
-    --dbpass="$(cat /run/secrets/mysql_user_password)" \
-    --dbhost="$MYSQL_HOST" \
+    --dbname="$DATABASE" \
+    --dbuser="$DB_USER" \
+    --dbpass="$(cat /run/secret/db_user_password)" \
+    --dbhost="$HOST" \
     --allow-root
 fi
 

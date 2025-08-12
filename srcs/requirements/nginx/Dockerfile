@@ -1,26 +1,29 @@
 FROM debian:bullseye
 
-# Avoids interactive prompts
+# Linux based image
+
+# No interactive prompts (Configure a package now?)
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Nginx and OpenSSL
+# Install packages: download latest, (-y=yes), webserver, self-signed TLS (Transport Layer Security) certification, no need for that containers after installing
 RUN apt-get update && apt-get install -y \
     nginx \
     openssl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy config and script
-COPY conf/default.conf /etc/nginx/sites-available/default
-COPY tools/ssl.sh /ssl.sh
-
-# Make script executable
-RUN chmod +x /ssl.sh && /ssl.sh
-
-# Create directory for site
+# directory (-p=parent) for site
 RUN mkdir -p /var/www/html
 
+# copy NGINX config, cert generation scripts -> from local folder put it into the image
+COPY conf/default.conf /etc/nginx/sites-available/default
+COPY tools/setup.sh /setup.sh
+COPY tools/ssl.sh /ssl.sh
+
+# make script executable
+RUN chmod +x /setup.sh /ssl.sh
+
+# expose HTTPS port, listens on port 443 (HTTPS)
 EXPOSE 443
 
-# Run nginx in foreground to keep the container alive.
-# "-g" passes the "daemon off;" directive directly to nginx.
-CMD ["nginx", "-g", "daemon off;"]
+# run  setup script on container start, it calls mkcert.sh to generate the certificate before starting nginx
+ENTRYPOINT ["/setup.sh"]

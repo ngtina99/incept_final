@@ -1,27 +1,30 @@
 #!/bin/bash
 set -e
 
-# Read secrets
-DB_ROOT_PASSWORD=$(cat /run/secrets/mysql_root_password)
-DB_USER="${MYSQL_USER}"
-DB_PASSWORD=$(cat /run/secrets/mysql_user_password)
-DB_NAME="${MYSQL_DATABASE}"
+# exit immediately if any command returns a non-zero/error status
+# run in lightweight shell 
 
-# Initialize MariaDB if empty
+# Read secrets
+DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+DB_USER="${DB_USER}"
+DB_PASSWORD=$(cat /run/secrets/db_user_password)
+DB_NAME="${DB_DATABASE}"
+
+# intialize MariaDB if empty
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     mysql_install_db --user=mysql --ldata=/var/lib/mysql
 fi
 
-# Start MariaDB in background with networking
+# start MariaDB in background with networking
 mysqld_safe --bind-address=0.0.0.0 &
 pid="$!"
 
-# Wait until it's ready
+# wait until it's ready
 until mysqladmin ping --silent; do
     sleep 1
 done
 
-# Run setup only if not already done
+# run setup only if not already done
 if [ ! -f "/var/lib/mysql/.db_initialized" ]; then
     mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASSWORD}'; FLUSH PRIVILEGES;"
 

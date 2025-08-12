@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Homepage</title>
+  <title>404 - Page Not Found</title>
   <style>
     * {
       margin: 0;
@@ -33,7 +33,7 @@
     .menu {
       display: flex;
       gap: 3rem;
-	  padding: 1rem 2rem;
+      padding: 1rem 2rem;
     }
 
     .menu a {
@@ -54,37 +54,30 @@
     }
 
     h1 {
-	  font-weight: 1;
-      font-size: 2rem;
-	  margin-top: 3rem;
+      font-size: 4rem;
       margin-bottom: 1rem;
     }
 
-  </style>
-  <script>
-    window.onload = function() {
-      // Function to get cookie value by name
-      function getCookie(name) {
-      console.log("cookie: " + document.cookie);
-      const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-        return null;
-      }
-
-      // Check for user cookie
-      const userCookie = getCookie('user');
-      console.log("userCookie: " + userCookie);
-      if (userCookie) {
-        const userDisplay = document.createElement('div');
-        userDisplay.style.textAlign = 'center';
-        userDisplay.style.marginTop = '1rem';
-        userDisplay.style.fontSize = '1.2rem';
-        userDisplay.textContent = `Welcome back, ${userCookie}!`;
-        document.querySelector('main').appendChild(userDisplay);
-      }
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
     }
-  </script>
+
+    a.button {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background-color: #000000;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    a.button:hover {
+      background-color: #333333;
+    }
+  </style>
 </head>
 <body>
   <nav>
@@ -96,8 +89,9 @@
   </nav>
 
   <main>
-	<img src="/images/home-main.jpg" alt="home main image" style="width: 300px; height: auto;" />
-    <h1>Welcome to My Inception Static Website</h1>
+    <h1>404</h1>
+    <p>Oops! The page you're looking for doesn't exist.</p>
+    <a href="/" class="button">Go Back Home</a>
   </main>
 </body>
 </html>
