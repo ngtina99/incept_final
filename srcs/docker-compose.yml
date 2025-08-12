@@ -34,7 +34,6 @@ services:
     # Loads environment variables from a .env file (which must not be committed to git).
     env_file:
       - .env
-
     # Automatically restarts the container if it crashes or the system reboots.
     restart: always
 
@@ -117,8 +116,6 @@ secrets:
     file: ../secrets/wp_admin_password
   wp_user_password:
     file: ../secrets/wp_user_password
-  ftp_password:
-    file: ../secrets/ftp_password
 
 networks:
   inception:
