@@ -4,18 +4,16 @@ set -e
 # exit immediately if any command returns a non-zero/error status
 # run in lightweight shell 
 
+
 ts() { date '+%H:%M:%S'; }
 info() { echo "[$(ts)] ➤ $*"; }
 step() { echo; echo "[$(ts)] === $* ==="; }
 ok()  { echo "[$(ts)] ✅ $*"; }
 
 step "Waiting for MariaDB at \"$HOST\" to be ready"
-
-# Wait until MySQL responds
 while ! mysqladmin ping -h"$HOST" --silent; do
   sleep 1
 done
-
 ok "MariaDB is reachable"
 
 step "Ensuring WordPress core is present"
@@ -23,11 +21,9 @@ cd /var/www/html
 if [ ! -f "wp-load.php" ]; then
   wp core download --allow-root
 fi
-
 ok "Core files ready"
 
 step "Creating wp-config.php if missing"
-
 if [ ! -f "wp-config.php" ]; then
   info "Generating wp-config.php with DB settings"
   wp config create \
@@ -37,11 +33,9 @@ if [ ! -f "wp-config.php" ]; then
     --dbhost="$HOST" \
     --allow-root
 fi
-
 ok "Config ready"
 
 step "Installing WordPress if not installed"
-
 if ! wp core is-installed --allow-root; then
   info "Running initial wp install"
   wp core install \
@@ -66,4 +60,5 @@ info "Making sure admin and user passwords are up to date"
 ok "User credentials synced"
 ok "WordPress ready at https://$DOMAIN_NAME"
 
+# run PHP-FPM, main process, foreground connects to terminal
 exec php-fpm7.4 -F
