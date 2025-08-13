@@ -20,5 +20,8 @@ RUN chmod +x /setup.sh
 # directory (-p=parent) runtime php
 RUN mkdir -p /run/php
 
+# expose port
+EXPOSE 3306
+
 # run  setup script on container start
 ENTRYPOINT ["/setup.sh"]
