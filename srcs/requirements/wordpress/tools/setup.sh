@@ -24,7 +24,7 @@ if [ ! -f "wp-config.php" ]; then
   wp config create \
     --dbname="$DATABASE" \
     --dbuser="$DB_USER" \
-    --dbpass="$(cat /run/secret/db_user_password)" \
+    --dbpass="$(cat /run/secrets/db_user_password)" \
     --dbhost="$HOST" \
     --allow-root
 fi
@@ -53,14 +53,4 @@ fi
 
 echo "✅ WordPress is installed at https://$DOMAIN_NAME"
 
-# Install and activate Redis Cache plugin
-echo "[5/5] Installing Redis Cache plugin..."
-
-wp plugin install redis-cache --activate --allow-root
-echo "✅ Redis Cache plugin installed and activated"
-wp config set WP_REDIS_HOST redis --allow-root
-wp config set WP_REDIS_PORT 6379 --raw --allow-root
-
-wp redis enable --allow-root
-echo "✅ Redis Cache enabled"
 exec php-fpm7.4 -F

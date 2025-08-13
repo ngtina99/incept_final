@@ -8,7 +8,7 @@ set -e
 DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 DB_USER="${DB_USER}"
 DB_PASSWORD=$(cat /run/secrets/db_user_password)
-DB_NAME="${DB_DATABASE}"
+DB_NAME="${DATABASE}"
 
 # intialize MariaDB if empty
 if [ ! -d "/var/lib/mysql/mysql" ]; then

@@ -95,17 +95,34 @@ services:
 
 volumes:
   mariadb_data:
+    name: srcs_mariadb_data
     driver: local
     driver_opts:
       type: none
-      device: ${MARIADB_VOLUME_PATH}
       o: bind
+      device: /home/thuy-ngu/data/mariadb
+
+
   wordpress_data:
+    name: srcs_wordpress_data
     driver: local
     driver_opts:
       type: none
-      device: ${WORDPRESS_VOLUME_PATH}
       o: bind
+      device: /home/thuy-ngu/data/wordpress
+
+  # mariadb_data:
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ${MARIADB_VOLUME_PATH}
+  #     o: bind
+  # wordpress_data:
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: ${WORDPRESS_VOLUME_PATH}
+  #     o: bind
 
 secrets:
   db_root_password:

@@ -10,4 +10,4 @@ if [ ! -f /etc/nginx/ssl/nginx.crt ]; then
 fi
 
 #start webserv, global, in the foreground (off) keeps the container running 
-nginx -g "daemon off;"
+exec nginx -g "daemon off;"
