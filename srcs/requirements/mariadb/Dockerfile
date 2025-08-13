@@ -7,12 +7,12 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 
-COPY tools/entrypoint.sh /entrypoint.sh
+COPY tools/setup.sh /setup.sh
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /setup.sh
 
 # expose port
 EXPOSE 3306
 
 # run  setup script on container start
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/setup.sh"]
