@@ -1,1 +1,18 @@
-*.md
+# version control
+.git
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+
+# logs and caches
+*.log
+logs/
+tmp/
+cache/
+
+# process ID
+*.pid
