@@ -6,9 +6,10 @@ RUN apt-get update && \
     apt-get install -y mariadb-server && \
     rm -rf /var/lib/apt/lists/*
 
-
+# copy setup
 COPY tools/setup.sh /setup.sh
 
+# make script executable
 RUN chmod +x /setup.sh
 
 # expose port
