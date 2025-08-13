@@ -19,12 +19,8 @@ services:
     # bridge internal communication for containers
     networks:
       - inception
-    # environment variables
-    env_file:
-      - .env
     # restarts/reboots if container would crash
     restart: always
-
 
   mariadb:
     build:
@@ -32,16 +28,14 @@ services:
     container_name: mariadb
     volumes:
       - mariadb_data:/var/lib/mysql
-    networks:
-      - inception
+    environment:
+      DATABASE: wordpress
+      DB_USER: ${DB_USER}
     secrets:
       - db_root_password
       - db_user_password
-    environment:
-      DB_ROOT_PASSWORD_FILE: ../secrets/db_root_password
-      DB_USER: ${DB_USER}
-      DB_PASSWORD_FILE: ../secrets/db_user_password
-      DATABASE: ${DATABASE}
+    networks:
+      - inception
     restart: always
 
   wordpress:
@@ -53,22 +47,25 @@ services:
     volumes:
       - wordpress_data:/var/www/html
       - /run/php:/run/php
-    networks:
-      - inception
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      HOST: mariadb
+
+      DATABASE: wordpress
+      DB_USER: ${DB_USER}
+
+      WP_TITLE: ${WP_TITLE}
+      WP_ADMIN: ${WP_ADMIN}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
+
+      WP_USER: ${WP_USER}
+      WP_USER_EMAIL: ${WP_USER_EMAIL}
     secrets:
       - db_user_password
       - wp_admin_password
       - wp_user_password
-    environment:
-      DOMAIN_NAME: ${DOMAIN_NAME}
-      HOST: mariadb
-      DATABASE: ${DATABASE}
-      DB_USER: ${DB_USER}
-      WP_TITLE: ${WP_TITLE}
-      WP_ADMIN: ${WP_ADMIN}
-      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
-      WP_USER: ${WP_USER}
-      WP_USER_EMAIL: ${WP_USER_EMAIL}
+    networks:
+      - inception
     restart: always
 
   mywebsite:

@@ -1,56 +1,48 @@
-NAME=inception
-COMPOSE=docker compose
-YML=srcs/docker-compose.yml
-
-PC_USER := thuy-ngu
-MARIADB_VOLUME_PATH := /home/$(PC_USER)/data/mariadb
-WORDPRESS_VOLUME_PATH := /home/$(PC_USER)/data/wordpress
-
-SECRETS_DIR := ./secrets
-PASSWORD_LENGTH := 12
-
-gen-secrets:
-	@mkdir -p $(SECRETS_DIR)
-	@for file in db_root_password db_user_password wp_admin_password wp_user_password; do \
-		if [ ! -s $(SECRETS_DIR)/$$file ]; then \
-			echo "Generating $$file..."; \
-			openssl rand -base64 $(PASSWORD_LENGTH) > $(SECRETS_DIR)/$$file; \
-		else \
-			echo "$$file already exists, skipping"; \
-		fi \
-	done
-	@echo "Secrets generated in $(SECRETS_DIR)."
-
-makedirs:
-	mkdir -p $(MARIADB_VOLUME_PATH)
-	mkdir -p $(WORDPRESS_VOLUME_PATH)
+NAME           = inception
+COMMAND        = docker compose
+FILE           = srcs/docker-compose.yml
+USER           = thuy-ngu
+SECRETS_DIR    = ./secrets
+SECRETS        = db_root_password db_user_password wp_admin_password wp_user_password
 
 all: up
+	@echo "$(NAME) is up and running!"
 
-up: makedirs gen-secrets
-	$(COMPOSE) -f $(YML) up -d --build
+up: folder password
+	$(COMMAND) -f $(FILE) up -d --build
+	@echo "Containers started"
+
+folder:
+	@mkdir -p /home/$(USER)/data/mariadb
+	@mkdir -p /home/$(USER)/data/wordpress
+	@echo "📂 Data folders prepared in /home/$(USER)/data"
+
+password:
+	@mkdir -p $(SECRETS_DIR)
+	@for f in $(SECRETS); do \
+		openssl rand -base64 8 > "$(SECRETS_DIR)/$$f"; \
+	done
+	@echo "🔒 Secrets stored in $(SECRETS_DIR)."
 
 down:
-	$(COMPOSE) -f $(YML) down
+	$(COMMAND) -f $(FILE) down
+	@echo "Containers stopped"
 
 clean:
-	$(COMPOSE) -f $(YML) down --volumes
+	$(COMMAND) -f $(FILE) down --volumes
+	@echo "Removed: containers and volumes removed"
 
-fullclean:
-	$(COMPOSE) -f $(YML) down --volumes --rmi all
-	sudo rm -rf $(MARIADB_VOLUME_PATH) $(WORDPRESS_VOLUME_PATH)
+fclean:
+	$(COMMAND) -f $(FILE) down --volumes --rmi all
 	docker volume prune -f
 	docker image prune -a -f
-	sudo rm -rf $(MARIADB_VOLUME_PATH) $(WORDPRESS_VOLUME_PATH)
+	sudo rm -rf /home/$(USER)/data/mariadb /home/$(USER)/data/wordpress
 	rm -f $(SECRETS_DIR)/*
-	@echo "Secrets removed from $(SECRETS_DIR)."
+	@echo " Removed> containers, volumes, unused images, project data, and secrets"
+
+logs:
+	$(COMMAND) -f $(FILE) logs -f
 
 re: fclean all
 
-logs:
-	$(COMPOSE) -f $(YML) logs -f
-
-uplogs: up
-	$(COMPOSE) -f $(YML) logs -f
-
-.PHONY: up down clean fclean re logs uplogs fullclean makedirs
+.PHONY: all up down clean fclean re logs folder password

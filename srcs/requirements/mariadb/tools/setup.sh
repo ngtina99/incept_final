@@ -8,7 +8,7 @@ set -e
 DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 DB_USER="${DB_USER}"
 DB_PASSWORD=$(cat /run/secrets/db_user_password)
-DB_NAME="${DATABASE}"
+DB_NAME="wordpress"
 
 # MariaDB/MySQL default, systemuser, location data dir
 if [ ! -d "/var/lib/mysql/mysql" ]; then
